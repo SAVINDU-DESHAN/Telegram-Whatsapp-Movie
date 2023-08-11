@@ -3,47 +3,43 @@ from telethon.tl.types import InputPeerChannel
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import time
-import sys
 
-# Input your api details here
-api_id = '' # API ID
-api_hash = '' # API HASH
-phone_number = '' # Phone number
+# Input your API details here
+api_id = ''  # API ID
+api_hash = ''  # API HASH
+phone_number = ''  # Phone number
 
+# This part of the code handles opening of WhatsApp on a new Chrome Window
+print("NOTE: Please do not alter anything on the opened Chrome window except scanning the QR code")
 
-#This part of the code handles opening of Whatsapp on a new Chrome Window
-print ("NOTE: Please do not alter anything on the opened chrome window except scanning the QRcode")
-
-driver = webdriver.Chrome('./chromedriver')
+# Initialize the Chrome WebDriver
+driver = webdriver.Chrome(executable_path='./chromedriver')
 driver.get("https://web.whatsapp.com/")
-wait = WebDriverWait(driver, 600000000000000000) # Wait time is almost limitless
+wait = WebDriverWait(driver, 600)  # Increased the wait time
 
-target = '' # The name of the targeted group on Whatsapp
+target = ''  # The name of the targeted group on WhatsApp
 
+# This part handles the Telethon Connection
+with TelegramClient('Comet01', api_id, api_hash) as client:
+    print("This program just started! All new posts would be sent to " + target)
 
-#This part handles the telethon Connection
-client = TelegramClient('Comet01', api_id, api_hash)
-client.start()
-print ("This program just started! All new posts would be sent to" + target)
+    @client.on(events.NewMessage(incoming=True))  # For every new message posted to the Telegram channel
+    async def my_event_handler(event):
+        msg = event.message.message
+        print(msg)  # Print the message to the console
 
+        # Switch to the WhatsApp Chrome window
+        driver.switch_to.window(driver.window_handles[-1])
 
-chat = InputPeerChannel(channel_id=channel_id, access_hash=channel_access_hash) # Input channel id and access_hash
+        # Find the input box and send the message
+        message_box = wait.until(EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"]')))
+        message_box.send_keys(msg)
+        message_box.send_keys(Keys.ENTER)
 
-x_arg = '//span[contains(@title,' + target + ')]'
-group_title = wait.until(EC.presence_of_element_located((By.XPATH, x_arg)))
-group_title.click()
+        # Switch back to the Telegram Chrome window
+        driver.switch_to.window(driver.window_handles[0])
 
-@client.on(events.NewMessage(chat, incoming=True)) # For every new message posted to the telegram channel
-def my_event_handler(event):
-    msg = event.message.message
-    print(msg) # print the message to console
-    message = driver.find_elements_by_xpath('//*[@id="main"]/footer/div[1]/div[2]/div/div[2]')[0] # Message Box
-    message.send_keys(str(msg))
-    sendbutton = driver.find_elements_by_xpath('//*[@id="main"]/footer/div[1]/div[3]/button')[0] # Send button
-    sendbutton.click()
-
-client.add_event_handler(my_event_handler)
-client.run_until_disconnected()
+    # Run the Telethon client
+    client.start()
+    client.run_until_disconnected()
