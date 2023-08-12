@@ -20,7 +20,6 @@ wait = WebDriverWait(driver, 600)  # Increased the wait time
 
 target = ''  # The name of the targeted group on WhatsApp
 
-# This part handles the Telethon Connection
 with TelegramClient('Comet01', api_id, api_hash) as client:
     print("This program just started! All new posts would be sent to " + target)
 
@@ -32,6 +31,14 @@ with TelegramClient('Comet01', api_id, api_hash) as client:
         # Switch to the WhatsApp Chrome window
         driver.switch_to.window(driver.window_handles[-1])
 
+        # Wait for the QR code to appear
+        try:
+            qr_code_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="app"]/div[1]/div/div[2]/div[1]/div/div[2]/div/canvas')))
+            # Perform actions with the QR code element
+        except TimeoutException:
+            print("Timed out waiting for the QR code to appear")
+            return
+        
         # Find the input box and send the message
         message_box = wait.until(EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"]')))
         message_box.send_keys(msg)
