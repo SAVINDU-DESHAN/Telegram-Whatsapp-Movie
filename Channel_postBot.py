@@ -6,16 +6,16 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 # Input your API details here
-api_id = ''  # API ID
-api_hash = ''  # API HASH
-phone_number = ''  # Phone number
+api_id = '18002559'  # API ID
+api_hash = 'c6a57e892c5aca3fd6a6fe203f884c86'  # API HASH
+phone_number = '+94789143967'  # Phone number
 
 # This part of the code handles opening of WhatsApp on a new Chrome Window
 print("NOTE: Please do not alter anything on the opened Chrome window except scanning the QR code")
 
 # Initialize the Chrome WebDriver
 driver = webdriver.Chrome(executable_path='./chromedriver')
-driver.get("https://web.whatsapp.com/")
+driver.get("https://chat.whatsapp.com/JXJxsEOLp61LJZm6cPbE3V")
 wait = WebDriverWait(driver, 600)  # Increased the wait time
 
 target = ''  # The name of the targeted group on WhatsApp
